@@ -1,0 +1,12 @@
+.idea
+venv
+notebook
+mlruns
+data
+.env
+.gitignore
+__pycache__
+mlflow.db
+system architecture
+phases.txt
+readme
