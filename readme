@@ -1,0 +1,218 @@
+📈 Stock Forecasting MLOps System
+
+A production-grade end-to-end MLOps system for stock price forecasting that covers the complete machine learning lifecycle — from model training to deployment, monitoring, drift detection, retraining, and CI/CD automation.
+
+This project demonstrates how real-world ML systems are built, deployed, and maintained in production.
+
+🚀 Project Overview
+
+This system predicts one-step-ahead stock closing prices using a time-series model and exposes predictions via a REST API.
+It continuously monitors model performance, detects drift, and safely retrains and promotes new models when needed.
+
+Key highlights:
+
+Production-ready ML inference API
+
+Dockerized and deployed to cloud
+
+Delayed-label monitoring
+
+Drift detection using rolling RMSE
+
+Safe retraining & model promotion
+
+CI/CD automation using GitHub Actions
+
+🧠 Architecture Overview
+Client
+  |
+  |  POST /predict
+  v
+FastAPI Inference Service
+  |
+  |--> Prediction Logger
+  |--> predictions.csv
+            |
+            | (daily ETL job)
+            v
+      Actuals Updater
+            |
+            v
+     Error & Drift Detection
+            |
+            | (if drift detected)
+            v
+     Retraining Pipeline
+            |
+            | (if better)
+            v
+     Model Promotion
+
+🛠 Tech Stack
+
+Language: Python
+
+ML / Time Series: ARIMA
+
+API & Backend: FastAPI, Pydantic
+
+Experiment Tracking: MLflow
+
+Monitoring & Drift Detection: Rolling RMSE, delayed-label tracking
+
+Data Ingestion: yfinance
+
+Containerization: Docker
+
+Deployment: Render
+
+CI/CD: GitHub Actions
+
+Data Processing: Pandas, NumPy
+
+Version Control: Git, GitHub
+
+📁 Project Structure
+.
+├── api/
+│   └── main.py                # FastAPI inference service
+│
+├── src/
+│   ├── arima.py               # ARIMA training & walk-forward evaluation
+│   ├── data_loader.py         # Data loading utilities
+│
+│   ├── monitoring/
+│   │   ├── prediction_logger.py
+│   │   ├── actuals_updater.py
+│   │   ├── drift.py
+│   │   └── fetch_actuals.py
+│
+│   └── retraining/
+│       └── retrain.py         # Retraining & safe promotion logic
+│
+├── data/
+│   └── monitoring/
+│       └── predictions.csv
+│
+├── artifacts/
+│   └── arima_model.pkl        # Production model
+│
+├── .github/workflows/
+│   ├── ci.yml
+│   └── retrain.yml
+│
+├── Dockerfile
+├── requirements.txt
+├── README.md
+
+🔁 ML Lifecycle Explained
+1️⃣ Model Training & Evaluation
+
+ARIMA model trained on historical stock prices
+
+Evaluated using walk-forward validation
+
+Metrics: MAE, RMSE, MAPE
+
+Experiments tracked using MLflow
+
+2️⃣ Inference API
+
+FastAPI service exposes /predict
+
+Accepts recent closing prices
+
+Returns one-step-ahead forecast
+
+Model loaded once at startup
+
+3️⃣ Deployment
+
+API is containerized using Docker
+
+Deployed to Render
+
+Publicly accessible REST endpoint
+
+4️⃣ Monitoring (Delayed Labels)
+
+Predictions logged in real time
+
+Actual prices fetched later via scheduled ETL job
+
+Errors computed once actual prices are available
+
+5️⃣ Drift Detection
+
+Rolling RMSE computed over recent predictions
+
+Drift detected if RMSE exceeds threshold for consecutive days
+
+6️⃣ Retraining & Safe Promotion
+
+Model retrained offline
+
+Evaluated using walk-forward validation
+
+Promoted only if it improves RMSE over production model
+
+Promotion tracked via MLflow
+
+7️⃣ CI/CD Automation
+
+CI: Docker build verification on every push
+
+CD: Scheduled retraining via GitHub Actions
+
+Zero manual intervention required
+
+▶️ How to Run Locally
+1️⃣ Clone the repository
+git clone <your-repo-url>
+cd stock-forecast-mlops
+
+2️⃣ Create virtual environment
+python -m venv venv
+source venv/bin/activate   # Linux / Mac
+venv\Scripts\activate      # Windows
+
+3️⃣ Install dependencies
+pip install -r requirements.txt
+
+4️⃣ Run the API
+uvicorn api.main:app --reload
+
+
+Open:
+
+http://localhost:8000/docs
+
+5️⃣ Example Prediction Request
+{
+  "recent_prices": [
+    170.2, 171.0, 169.8, 170.5, 171.3,
+    172.1, 171.8, 172.6, 173.0, 172.4
+  ]
+}
+
+🐳 Run with Docker
+docker build -t arima-api .
+docker run -p 8000:8000 arima-api
+
+🔄 Run Monitoring Jobs Manually
+Fetch actual prices
+python -m src.monitoring.fetch_actuals
+
+Detect drift
+from src.monitoring.drift import detect_drift
+detect_drift(training_rmse=1.53)
+
+Retrain model
+python -m src.retraining.retrain
+
+📊 CI/CD Workflows
+
+ci.yml → Runs on every push (Docker build check)
+
+retrain.yml → Scheduled retraining (cron) + manual trigger
+
