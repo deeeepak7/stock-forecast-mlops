@@ -5,7 +5,7 @@ from fastapi import FastAPI,HTTPException
 from statsmodels.tsa.arima.model import ARIMAResults
 from src.arima import arima_order
 from api.schema import PredictionOutcome,PredictionRequest
-
+from src.monitoring.prediction_logger import log_prediction
 
 app=FastAPI(
     title="ARIMA FORECAST API",
@@ -32,6 +32,14 @@ def predict(request:PredictionRequest):
         model=arima_model.model
         refit=model.clone(endog=history).fit()
         forecast=refit.forecast(steps=1)[0]
+
+        log_prediction(
+            timestamp=datetime.utcnow(),
+            prediction=float(forecast),
+            history_len=len(history),
+            model_type="ARIMA",
+            arima_order=arima_order
+        )
 
         return PredictionOutcome(
             prediction=float(forecast),
