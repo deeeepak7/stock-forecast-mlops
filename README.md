@@ -171,7 +171,7 @@ This system provides a robust solution for one-step-ahead stock closing price pr
 ### 3. Deployment
 
 - Application containerized using Docker
-- Deployed to cloud platform (Render)
+- was Deployed to cloud platform (Render)
 - Publicly accessible REST endpoint
 - Health check endpoint available at `/health`
 
